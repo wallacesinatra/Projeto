@@ -11,11 +11,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.envers.Audited;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "cursos")
+@Audited
 public class Curso {
 
 	@Id
@@ -38,7 +41,6 @@ public class Curso {
 	private Integer quantidade;
 
 	@ManyToOne
-	@JsonIgnore
 	@JoinColumn(name = "fk_categoria")
 	private Categoria categoria;
 
@@ -104,5 +106,7 @@ public class Curso {
 	public void setQuantidade(Integer quantidade) {
 		this.quantidade = quantidade;
 	}
+	
+	
 
 }

@@ -1,19 +1,17 @@
 package br.com.wallace.projetocast.entities;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "categoria")
+@Audited
 public class Categoria {
 
 	@Id
@@ -24,9 +22,15 @@ public class Categoria {
 	@Column(name = "categoria")
 	private String categoria;
 
-	@OneToMany
-	@JsonIgnore
-	private List<Curso> cursos;
+	public Categoria() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public Categoria(Integer idCategoria, String categoria) {
+		super();
+		this.idCategoria = idCategoria;
+		this.categoria = categoria;
+	}
 
 	public Integer getIdCategoria() {
 		return idCategoria;
@@ -42,14 +46,6 @@ public class Categoria {
 
 	public void setCategoria(String categoria) {
 		this.categoria = categoria;
-	}
-
-	public List<Curso> getCursos() {
-		return cursos;
-	}
-
-	public void setCursos(List<Curso> cursos) {
-		this.cursos = cursos;
 	}
 
 }
