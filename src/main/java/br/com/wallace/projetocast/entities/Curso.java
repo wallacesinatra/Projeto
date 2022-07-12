@@ -15,7 +15,6 @@ import org.hibernate.envers.Audited;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-
 @Entity
 @Table(name = "cursos")
 @Audited

@@ -7,20 +7,31 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.wallace.projetocast.entities.Categoria;
 import br.com.wallace.projetocast.entities.Curso;
 import br.com.wallace.projetocast.repository.CursoRepository;
+import br.com.wallace.projetocast.request.CursoPostRequest;
 
 @Service
 public class CursoService {
 
 	@Autowired
 	CursoRepository repository;
-	
-	
 
-	public void cadastra(Curso curso) {
+	public void cadastra(CursoPostRequest request) {
+
+		Curso curso = new Curso();
+		Categoria categoria = new Categoria(request.getCategoria());
+
+		curso.setDescricao(request.getDescricao());
+		curso.setDataIni(LocalDate.parse(request.getDataIni()));
+		curso.setDataTer(LocalDate.parse(request.getDataTer()));
+		curso.setQuantidade(Integer.parseInt(request.getQuantidade()));
+		curso.setCategoria(categoria);
+
 		regraCadastro(curso);
 		regraCadastroData(curso.getDataIni(), curso.getDataTer());
+		
 		repository.save(curso);
 	}
 

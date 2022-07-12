@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import br.com.wallace.projetocast.entities.Curso;
 import br.com.wallace.projetocast.repository.CursoRepository;
+import br.com.wallace.projetocast.request.CursoPostRequest;
 import br.com.wallace.projetocast.service.CursoService;
+
 
 @Controller
 @RequestMapping("api/curso")
@@ -36,9 +38,11 @@ public class CursoController {
 	// inserir dados
 
 	@PostMapping
-	public ResponseEntity<String> inserir(@RequestBody Curso curso) {
+	public ResponseEntity<String> inserir(@RequestBody CursoPostRequest request) {
+		System.out.println(request.getDescricao());
+		System.out.println(request.getCategoria());
 		try {
-			service.cadastra(curso);
+			service.cadastra(request);
 			return ResponseEntity.ok().body("Curso cadastrado");
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body("Error: " + e.getMessage());

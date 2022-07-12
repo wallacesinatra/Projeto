@@ -32,6 +32,11 @@ public class Categoria {
 		this.categoria = categoria;
 	}
 
+	public Categoria(Integer idCategoria) {
+		super();
+		this.idCategoria = idCategoria;
+	}
+
 	public Integer getIdCategoria() {
 		return idCategoria;
 	}
