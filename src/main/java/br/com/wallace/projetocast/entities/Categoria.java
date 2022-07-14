@@ -7,11 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.envers.Audited;
-
 @Entity
 @Table(name = "categoria")
-@Audited
 public class Categoria {
 
 	@Id

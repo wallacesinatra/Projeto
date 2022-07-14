@@ -48,12 +48,14 @@ public class CursoService {
 		repository.save(curso);
 	}
 
+	// nao deixa cadastrar mesmo periodo
 	public void regraCadastro(Curso curso) {
 		if (curso.getDataIni().isBefore(LocalDate.now())) {
 			throw new RuntimeException("Inicio curso menor que data de hoje");
 		}
 	}
 
+	// nao deixa criar curso mesmo periodo
 	public void regraCadastroData(LocalDate dataIni, LocalDate dataTer) {
 
 		Integer busca = repository.busca(dataIni, dataTer);
@@ -64,6 +66,7 @@ public class CursoService {
 
 	}
 
+	// nao deixa cadastrar mesmo curso (descricao)
 	public void regraValidaCurso(Curso curso) {
 
 		for (Curso aux : repository.findAll()) {
@@ -133,14 +136,29 @@ public class CursoService {
 	}
 
 	public void alterar(Curso curso) {
+		Integer aux = repository.consultaDatasEditar(curso.getDataIni(), curso.getDataTer(), curso.getIdCurso());
+		
 		validaId(curso.getIdCurso());
 		regraCadastro(curso);
-		repository.consultaDatasEditar(curso.getDataIni(), curso.getDataTer(), curso.getIdCurso());
+		cursoAltera(curso);
+
+		if (aux > 0) {
+			throw new RuntimeException("Existe(m) curso(s) planejados(s) dentro do período informado.");
+		}
+
 		repository.save(curso);
 	}
 
-	public void validaId(Integer idcurso) {
+	//verifica se curso ja existe
+	public void cursoAltera(Curso curso) {
+		Integer aux = repository.update(curso.getDescricao(), curso.getIdCurso());
+		if (aux > 0) {
+			throw new RuntimeException("Curso ja existente");
+		}
 
+	}
+
+	public void validaId(Integer idcurso) {
 		Optional<Curso> list = repository.findById(idcurso);
 		if (list.isEmpty()) {
 			throw new RuntimeException("Curso nao existe");

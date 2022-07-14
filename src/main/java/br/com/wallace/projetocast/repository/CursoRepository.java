@@ -17,7 +17,9 @@ public interface CursoRepository extends JpaRepository<Curso, Integer> {
 			+ "(:dataIni >= curso.dataIni and :dataTer <= curso.dataTer)" + "or"
 			+ "(:dataIni <= curso.dataIni and :dataTer >= curso.dataTer)")
 	Integer busca(LocalDate dataIni, LocalDate dataTer);
-	
+
+	@Query("select count(*) from Curso c where ((:descricao = c.descricao)) AND (:idCurso != idCurso)")
+	Integer update(String descricao, Integer idCurso);
 
 	@Query(value = "select count(c.idCurso) from Curso c where (c.dataIni between :dataIni and :dataTer "
 			+ "or (c.dataTer between :dataIni and :dataTer)" + "or (c.dataIni <= :dataIni and c.dataTer >= :dataTer)"
