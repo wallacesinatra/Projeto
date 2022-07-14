@@ -48,7 +48,7 @@ public class CursoService {
 		repository.save(curso);
 	}
 
-	// nao deixa cadastrar mesmo periodo
+	// nao deixa cadastrar curso anterior data atual
 	public void regraCadastro(Curso curso) {
 		if (curso.getDataIni().isBefore(LocalDate.now())) {
 			throw new RuntimeException("Inicio curso menor que data de hoje");
