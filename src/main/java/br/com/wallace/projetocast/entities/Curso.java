@@ -105,7 +105,5 @@ public class Curso {
 	public void setQuantidade(Integer quantidade) {
 		this.quantidade = quantidade;
 	}
-	
-	
 
 }

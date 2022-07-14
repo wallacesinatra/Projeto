@@ -1,8 +1,17 @@
 package br.com.wallace.projetocast.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +23,9 @@ import br.com.wallace.projetocast.request.CursoPostRequest;
 
 @Service
 public class CursoService {
+
+	@PersistenceContext
+	EntityManager entity;
 
 	@Autowired
 	CursoRepository repository;
@@ -29,9 +41,10 @@ public class CursoService {
 		curso.setQuantidade(Integer.parseInt(request.getQuantidade()));
 		curso.setCategoria(categoria);
 
+		regraValidaCurso(curso);
 		regraCadastro(curso);
 		regraCadastroData(curso.getDataIni(), curso.getDataTer());
-		
+
 		repository.save(curso);
 	}
 
@@ -43,16 +56,56 @@ public class CursoService {
 
 	public void regraCadastroData(LocalDate dataIni, LocalDate dataTer) {
 
-		List<Curso> list = repository.findByDataIniLessThanEqualAndDataTerGreaterThanEqual(dataIni, dataTer);
+		Integer busca = repository.busca(dataIni, dataTer);
 
-		if (list.size() > 0) {
-			throw new RuntimeException("Existe(m) curso(s) planejados(s) dentro do período informado");
+		if (busca > 0) {
+			throw new RuntimeException("Existe(m) curso(s) planejados(s) dentro do período informado.");
 		}
 
 	}
 
-	public List<Curso> busca() {
-		return repository.findAll();
+	public void regraValidaCurso(Curso curso) {
+
+		for (Curso aux : repository.findAll()) {
+			if (aux.getDescricao().equals(curso.getDescricao())) {
+				throw new RuntimeException("Curso Existente");
+			}
+		}
+
+	}
+
+	public List<Curso> busca(String descricao, LocalDate dataIni, LocalDate dataTer) {
+
+		CriteriaBuilder criteria = entity.getCriteriaBuilder();
+		CriteriaQuery<Curso> criteriaQuery = criteria.createQuery(Curso.class);
+
+		Root<Curso> curso = criteriaQuery.from(Curso.class);
+		List<Predicate> predList = new ArrayList<>();
+
+		if (descricao != "") {
+			Predicate descricaoPredicate = criteria.equal(curso.get("descricao"), descricao);
+			predList.add(descricaoPredicate);
+		}
+
+		if (dataIni != null) {
+			Predicate dataIniPredicate = criteria.greaterThanOrEqualTo(curso.get("dataIni"), dataIni);
+			predList.add(dataIniPredicate);
+		}
+
+		if (dataTer != null) {
+			Predicate dataTerPredicate = criteria.lessThanOrEqualTo(curso.get("dataTer"), dataTer);
+			predList.add(dataTerPredicate);
+		}
+
+		Predicate[] predicateArray = new Predicate[predList.size()];
+
+		predList.toArray(predicateArray);
+
+		criteriaQuery.where(predicateArray);
+
+		TypedQuery<Curso> query = entity.createQuery(criteriaQuery);
+
+		return query.getResultList();
 	}
 
 	public Optional<Curso> buscaId(Integer idcurso) {
@@ -62,35 +115,6 @@ public class CursoService {
 			throw new RuntimeException("Id inexistente");
 		}
 		return list;
-	}
-
-	public List<Curso> buscaDescricao(String descricao) {
-
-		List<Curso> listCurso = repository.findByDescricao(descricao);
-
-		if (listCurso.isEmpty()) {
-			throw new RuntimeException("Descricao nao existe");
-		} else {
-			for (Curso curso : repository.findByDescricao(descricao)) {
-
-				listCurso.add(curso);
-			}
-		}
-
-		return listCurso;
-
-	}
-
-	public List<Curso> buscaPeriodo(LocalDate dataIni, LocalDate dataTer) {
-
-		List<Curso> listCurso = repository.findByDataIniBetween(dataIni, dataTer);
-
-		for (Curso curso : repository.findByDataIniBetween(dataIni, dataTer)) {
-			listCurso.add(curso);
-		}
-
-		return listCurso;
-
 	}
 
 	public void deletar(Integer idcurso) {
@@ -110,6 +134,8 @@ public class CursoService {
 
 	public void alterar(Curso curso) {
 		validaId(curso.getIdCurso());
+		regraCadastro(curso);
+		repository.consultaDatasEditar(curso.getDataIni(), curso.getDataTer(), curso.getIdCurso());
 		repository.save(curso);
 	}
 

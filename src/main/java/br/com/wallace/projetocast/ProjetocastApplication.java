@@ -9,7 +9,7 @@ public class ProjetocastApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ProjetocastApplication.class, args);
-
+		
 	}
 
 }

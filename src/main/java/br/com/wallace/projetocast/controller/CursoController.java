@@ -17,12 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import br.com.wallace.projetocast.entities.Curso;
-import br.com.wallace.projetocast.repository.CursoRepository;
 import br.com.wallace.projetocast.request.CursoPostRequest;
 import br.com.wallace.projetocast.service.CursoService;
-
 
 @Controller
 @RequestMapping("api/curso")
@@ -32,9 +31,6 @@ public class CursoController {
 	@Autowired
 	CursoService service;
 
-	@Autowired
-	CursoRepository repository;
-
 	// inserir dados
 
 	@PostMapping
@@ -43,7 +39,7 @@ public class CursoController {
 		System.out.println(request.getCategoria());
 		try {
 			service.cadastra(request);
-			return ResponseEntity.ok().body("Curso cadastrado");
+			return ResponseEntity.ok().body("Dados gravados com sucesso");
 		} catch (Exception e) {
 			return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
 		}
@@ -52,8 +48,10 @@ public class CursoController {
 	// listar dados
 
 	@GetMapping
-	public ResponseEntity<List<Curso>> listar() {
-		List<Curso> curso = service.busca();
+	public ResponseEntity<List<Curso>> listar(@RequestParam(required = false) String descricao,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataIni,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataTer) {
+		List<Curso> curso = service.busca(descricao, dataIni, dataTer);
 		return ResponseEntity.ok().body(curso);
 	}
 
@@ -65,38 +63,9 @@ public class CursoController {
 			Optional<Curso> curso = service.buscaId(idcurso);
 			return ResponseEntity.ok().body(curso);
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.OK).body("Erro :" + e.getMessage());
+			return ResponseEntity.status(HttpStatus.OK).body("Erro: " + e.getMessage());
 		}
 
-	}
-
-	// buscar por descricao
-
-	@GetMapping("/descricao")
-	public ResponseEntity<?> listDescricao(String descricao) {
-
-		try {
-			List<Curso> list = service.buscaDescricao(descricao);
-			return ResponseEntity.ok().body(list);
-
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.OK).body("Erro :" + e.getMessage());
-		}
-
-	}
-
-	// buscar por periodo
-
-	@GetMapping(value = "/periodo/{dataIni}/{dataTer}")
-	public ResponseEntity<?> listarPeriodo(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataIni,
-			@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataTer) {
-
-		try {
-			List<Curso> list = repository.findByDataIniBetween(dataIni, dataTer);
-			return ResponseEntity.ok().body(list);
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.OK).body("Erro :" + e.getMessage());
-		}
 	}
 
 	// metodo deletar
@@ -108,7 +77,7 @@ public class CursoController {
 			return ResponseEntity.status(HttpStatus.OK).body("Curso excluido");
 
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro :" + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " + e.getMessage());
 		}
 
 	}
@@ -124,7 +93,7 @@ public class CursoController {
 			return ResponseEntity.status(HttpStatus.OK).body("Atualizado");
 
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro :" + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " + e.getMessage());
 		}
 
 	}
